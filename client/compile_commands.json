@@ -1,0 +1,27 @@
+[
+    {
+        "command": "c++ -c -Wall -g -I/home/yilin/shared/share_dir/Network/Tcp/client/include -I/home/yilin/shared/share_dir/Network/Tcp/client -I/home/yilin/shared/share_dir/Network/Tcp/Common -I/home/yilin/shared/share_dir/Network/Tcp/util -o /home/yilin/shared/share_dir/Network/Tcp/client/build/Main.o /home/yilin/shared/share_dir/Network/Tcp/client/src/Main.cpp",
+        "directory": "/home/yilin/shared/share_dir/Network/Tcp/client",
+        "file": "/home/yilin/shared/share_dir/Network/Tcp/client/src/Main.cpp"
+    },
+    {
+        "command": "c++ -c -Wall -g -I/home/yilin/shared/share_dir/Network/Tcp/client/include -I/home/yilin/shared/share_dir/Network/Tcp/client -I/home/yilin/shared/share_dir/Network/Tcp/Common -I/home/yilin/shared/share_dir/Network/Tcp/util -o /home/yilin/shared/share_dir/Network/Tcp/client/build/Client.o /home/yilin/shared/share_dir/Network/Tcp/client/src/Client.cpp",
+        "directory": "/home/yilin/shared/share_dir/Network/Tcp/client",
+        "file": "/home/yilin/shared/share_dir/Network/Tcp/client/src/Client.cpp"
+    },
+    {
+        "command": "c++ -c -Wall -g -I/home/yilin/shared/share_dir/Network/Tcp/client/include -I/home/yilin/shared/share_dir/Network/Tcp/client -I/home/yilin/shared/share_dir/Network/Tcp/Common -I/home/yilin/shared/share_dir/Network/Tcp/util -o /home/yilin/shared/share_dir/Network/Tcp/client/build/Common.o /home/yilin/shared/share_dir/Network/Tcp/Common/Common.cpp",
+        "directory": "/home/yilin/shared/share_dir/Network/Tcp/client",
+        "file": "/home/yilin/shared/share_dir/Network/Tcp/Common/Common.cpp"
+    },
+    {
+        "command": "c++ -c -Wall -g -I/home/yilin/shared/share_dir/Network/Tcp/client/include -I/home/yilin/shared/share_dir/Network/Tcp/client -I/home/yilin/shared/share_dir/Network/Tcp/Common -I/home/yilin/shared/share_dir/Network/Tcp/util -o /home/yilin/shared/share_dir/Network/Tcp/client/build/TimeTick.o /home/yilin/shared/share_dir/Network/Tcp/util/TimeTick.cpp",
+        "directory": "/home/yilin/shared/share_dir/Network/Tcp/client",
+        "file": "/home/yilin/shared/share_dir/Network/Tcp/util/TimeTick.cpp"
+    },
+    {
+        "command": "c++ -c -Wall -g -I/home/yilin/shared/share_dir/Network/Tcp/client/include -I/home/yilin/shared/share_dir/Network/Tcp/client -I/home/yilin/shared/share_dir/Network/Tcp/Common -I/home/yilin/shared/share_dir/Network/Tcp/util -o /home/yilin/shared/share_dir/Network/Tcp/client/build/Log.o /home/yilin/shared/share_dir/Network/Tcp/util/Log.cpp",
+        "directory": "/home/yilin/shared/share_dir/Network/Tcp/client",
+        "file": "/home/yilin/shared/share_dir/Network/Tcp/util/Log.cpp"
+    }
+]
