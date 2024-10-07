@@ -66,7 +66,7 @@ void Main::LogDegreeSet()
 int main() {
 
     Main *main_obj=new Main();
-    //先建立tcp连接hh
+    //先建立tcp连接hhh
     main_obj->MainInit();
     main_obj->tcp_server_.TcpLayerInit(TCP_SOCK_STREAM_,8080);
     while(1){
