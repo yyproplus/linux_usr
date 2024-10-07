@@ -21,7 +21,7 @@ LDFLAGS = -lpthread
 CFLAGS += $(INCLUDE)
 
 # 定义目标
-TARGET = server
+TARGET = client
 
 # 定义源文件路径
 SRCS_PATH1 = $(CURRENT_POS)/include

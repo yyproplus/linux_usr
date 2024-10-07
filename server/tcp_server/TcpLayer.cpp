@@ -21,7 +21,6 @@ int TcpLayer::TcpLayerInit(SocketType socket_type,int port)
         LOG_ERROR("server_.Init error");
         return ret;
     }
-    sleep(10);
     tcp_rec_thread_=new ThreadManager();
     if(tcp_rec_thread_==nullptr){
         return -1;

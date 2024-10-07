@@ -52,6 +52,7 @@ int Server::SocketCreate()
         perror("socket failed\n");
         return -1;
     }
+    //LOG_DEBUG("server_fd_=%d",server_fd_);
     return 0;
 }
 
@@ -62,6 +63,11 @@ int Server::BindSocket()
     address_.sin_port = htons(port_);
     if (bind(server_fd_, (struct sockaddr *)&address_, sizeof(address_)) < 0) {
         perror("bind failed\n");
+        close(server_fd_);
+        return -1;
+    }
+    if (listen(server_fd_, 3) < 0) {
+        perror("listen failed");
         close(server_fd_);
         return -1;
     }
@@ -153,12 +159,20 @@ int Server::SelectCheckSocketStatus()
     if (activity < 0 && errno != EINTR) {
         perror("select 错误");
     }
+    if (activity == 0) {
+        std::cerr << "select 超时，没有新连接。" << std::endl;
+        tcp_connect_status_ = TCP_CONNECT_TIMEOUT;
+        return -1;
+    }
     if (FD_ISSET(server_fd_, &read_fds_)) {
         // 有新的连接，调用 accept
+        LOG_DEBUG("server_fd_=%d,len=%d,address_.sin_port=%d,activity=%d",server_fd_,addrlen,address_.sin_port,activity);
         new_socket_ = accept(server_fd_, (struct sockaddr *)&address_, (socklen_t*)&addrlen);
 
         if (new_socket_ < 0) {
-            perror("accept 错误");//这是不可用，
+            perror("accept 错误");
+            // 打印错误码
+            std::cerr << "错误代码: " <<strerror(errno) << std::endl; 
             tcp_connect_status_ = TCP_CONNECT_FAILED;
             close(server_fd_);
             return -1;
