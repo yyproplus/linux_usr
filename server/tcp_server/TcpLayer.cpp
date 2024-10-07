@@ -1,10 +1,10 @@
 #include <stdio.h>
+#include <unistd.h>
 #include "TcpLayer.h"
 #include "Log.h"
 #include "ThreadManager.h"
 TcpLayer::TcpLayer():server_queue_list_(100)
 {
-    memset(&server_,0,sizeof(Server));
     printf("TcpLayer()\n");
 }
 
@@ -21,9 +21,16 @@ int TcpLayer::TcpLayerInit(SocketType socket_type,int port)
         LOG_ERROR("server_.Init error");
         return ret;
     }
+    sleep(10);
     tcp_rec_thread_=new ThreadManager();
+    if(tcp_rec_thread_==nullptr){
+        return -1;
+    }
     tcp_rec_thread_->ThreadCreate(std::bind(&TcpLayer::TcpLayerRevThread,this));
     tcp_dataParse_thread_=new ThreadManager();
+    if(tcp_dataParse_thread_==nullptr){
+        return -1;
+    }
     tcp_dataParse_thread_->ThreadCreate(std::bind(&TcpLayer::TcpLayerDataParseThread,this));
     return 0;
 }

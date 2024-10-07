@@ -10,7 +10,6 @@ class Main
 public:
     Main()
     {
-        memset(&tcp_server_,0,sizeof(TcpLayer));
         printf("Main()\n");
     }
     ~Main(){

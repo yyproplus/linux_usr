@@ -16,7 +16,7 @@
 #include "UdpEvent.h"
 #define PORT 65432
 
-Server::Server()
+Server::Server():socket_type_(0)
 {
     printf("Server()\n");
 }
@@ -38,7 +38,7 @@ int Server::Init(SocketType socket_type,int port)
     if(socket_type_==TCP_SOCK_STREAM_)
     ret=ConnectStart();
     else{
-        new_socket_=server_fd_;
+        new_socket_=server_fd_;//udp连接不需要监听
     }
 #ifdef SOCKET_BLOCK
     if(ret<0)return -1;
