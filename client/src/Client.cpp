@@ -29,6 +29,8 @@ Client::~Client()
 
 int Client::Init(SocketType socket_type,int port)
 {
+    socket_type_=socket_type;
+    port_=port;
     int ret=SocketCreate();
     if(ret<0){
         printf("SocketCreate failed\n");
@@ -82,11 +84,35 @@ int Client::BindSocket()
 
 int Client::ConnectStart()
 {
-     // 连接服务器
+    // 尝试连接服务器
     if (connect(client_sock_, (struct sockaddr *)&client_addr_, sizeof(client_addr_)) < 0) {
-        printf("\nConnection Failed \n");
-        return -1;
+    if (errno == EINPROGRESS) {
+        // 连接正在进行，使用 select 等待连接完成
+        fd_set write_fds;
+        FD_ZERO(&write_fds);
+        FD_SET(client_sock_, &write_fds);
+        struct timeval timeout;
+        timeout.tv_sec = 5;  // 等待5秒
+        timeout.tv_usec = 0;
+
+        int activity = select(client_sock_ + 1, NULL, &write_fds, NULL, &timeout);
+        if (activity > 0) {
+            // 检查连接是否成功
+            int so_error;
+            socklen_t len = sizeof(so_error);
+            getsockopt(client_sock_, SOL_SOCKET, SO_ERROR, &so_error, &len);
+            if (so_error == 0) {
+                printf("Connected successfully!\n");
+            } else {
+                printf("Connection failed: %s\n", strerror(so_error));
+            }
+        } else {
+            printf("Connection timed out.\n");
+        }
+    } else {
+        perror("connect failed");
     }
+}
     return 0;
 }
 
