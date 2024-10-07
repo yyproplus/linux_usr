@@ -65,6 +65,7 @@ int main() {
 
     Main *main_obj=new Main();
     main_obj->MainInit();
+    //提交测试
     main_obj->tcp_client_.TcpLayerInit(TCP_SOCK_STREAM_,8080);
     while(1){
         sleep(1);
