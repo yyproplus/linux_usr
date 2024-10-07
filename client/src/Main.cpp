@@ -3,12 +3,16 @@
 #include <string.h>
 #include <unistd.h>
 #include <arpa/inet.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <memory>
 #include <signal.h>
-#include "Common.h"
-#include "Client.h"
 #include "Log.h"
+#include "Common.h"
+#include "Main.h"
 #define PORT 65432
 #define BUFFER_SIZE 1024
+
 // 信号处理函数
 void handle_signal(int signal) {
     switch (signal) {
@@ -37,30 +41,32 @@ void handle_signal(int signal) {
     // 关闭文件描述符、释放资源等
     exit(0); // 退出程序
 }
-int main() 
+
+void Main::MainInit()
+{
+    AbnormalSignalCapture();
+    LogDegreeSet();
+}
+
+void Main::AbnormalSignalCapture()
 {
     signal(SIGINT, handle_signal);
     signal(SIGTERM, handle_signal);
     signal(SIGPIPE, handle_signal);
     signal(SIGSEGV, handle_signal);
-    LOG_INFO("Client start");
-    Common *client=new Client;
-    Client* ptr=dynamic_cast<Client*>(client);
-    ptr->ClientRun(1025,client->UDP_SOCK_DGRAM_);
+}
 
-    Common *client1=new Client;
-    Client* ptr1=dynamic_cast<Client*>(client1);
-    ptr1->ClientRun(8080,client1->TCP_SOCK_STREAM_);
+void Main::LogDegreeSet()
+{
+    SetLogDegree(LOG_LEVEL_DEBUG);
+}
+
+int main() {
+
+    Main *main_obj=new Main();
+    main_obj->MainInit();
+    main_obj->tcp_client_.TcpLayerInit(TCP_SOCK_STREAM_,8080);
     while(1){
-         if(ptr->GetThreadExitFlag()){
-            delete client;
-            break;
-        }
-        if(ptr1->GetThreadExitFlag()){
-            delete client1;
-            //delete client1;
-            //break;
-        }
         sleep(1);
     }
     return 0;

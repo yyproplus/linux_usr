@@ -25,7 +25,6 @@ Client::~Client()
 {
     printf("~Client()\n");
     SocketDestory();
-    WaitClientThread();
 }
 
 int Client::Init(SocketType socket_type,int port)
@@ -113,11 +112,6 @@ int Client::SocketDestory()
     return 0;
 }
 
-uint8_t *Client::GetBuff()
-{
-    return buffer_;
-}
-
 int Client::GetSocketBuff()
 {
     int sndbuf;
@@ -177,20 +171,6 @@ int Client::SetSocketNonblock()
     return 0;
 }
 
-int Client::SetNonblockMode(NonblockMode mode)
-{
-   // SetNoblockCall[mode];
-    return 0;
-}
-
-int Client::RegisterNonblockModeCallback()
-{
-   /*  SetNoblockCall[0]=&Client::SelectNoblockMode;
-    SetNoblockCall[1]=&Client::PollNoblockMode;
-    SetNoblockCall[2]=&Client::EpollNoblockMode; */
-    return 0;
-}
-
 int Client::GetProcessFdCountMax()
 {
     struct rlimit limit;
@@ -208,12 +188,6 @@ int Client::GetProcessFdCountMax()
     return 0;
 }
 
-void Client::ClientThreadStart(Client *server)
-{
-    pthread_setname_np(pthread_self(), "ClientThreadStart");
-    server->ClientThread();
-}
-
 int Client::SendFixData(uint8_t pdata)
 {
     uint8_t data[]={0x55,0xAA,0x05,0x01,0x00};
@@ -226,75 +200,7 @@ int Client::SendFixData(uint8_t pdata)
     return Write(data,len,0);
 }
 
-void Client::ClientRun(int port,int socket_type)
-{
-    port_=port;
-    socket_type_=socket_type;
-    client_thread_=std::thread(&ClientThreadStart,this);
-}
-
-void Client::ClientThread()
-{
-    const char* client="hello ,server";
-    int ret=Init(); 
-    if(ret<0){
-        printf("Init failed\n");
-        thread_exit=true;
-        return ;
-    }
-    bool send_status=false;
-    uint8_t data=0x01;
-    while (1)
-    {
-        select_status_=SelectNoblockMode();
-        sleep(2);
-        //LOG_INFO("select_status_=%d\n",select_status_);
-        if(select_status_==SELECT_WRITE_ONLY||select_status_==SELECT_RW){
-            //ret=!send_status?SendFixData(0x01):SendFixData(0x02);
-            ret=SendFixData(data);
-            send_status=!send_status;
-            if (ret < 0) {
-                if (errno == EAGAIN || errno == EWOULDBLOCK) {
-                    // 发送缓冲区满，稍后重试,稍加延时等待select状态可写
-                    perror("SELECT_BUFF_FULL\n");
-                    usleep(10);
-                    continue;
-                } else if(errno == EPIPE){
-                    // 服务端关闭套接字
-                    perror("SELECT_REMOTE_SOCKET_CLOSE_WITH_EPIPE\n");
-                    break;
-                } else if(errno == ECONNRESET){
-                    // 连接被重置，关闭套接字
-                    perror("server coredump or network error\n");
-                   break;
-                }else if (errno == ENOBUFS) {
-                    // 系统缓冲区不足，可能需要重试或等待
-                    perror("Sys Mem no enough\n");
-                   continue;
-                }
-                else {
-                    printf("Write SELECT_ERROR,errno=%d\n",errno);
-                    break;
-                }
-             }
-        }
-    }
-    thread_exit=true;
-}
-
-void Client::WaitClientThread()
-{
-    if(client_thread_.joinable()){
-        client_thread_.join();
-    }
-}
-
-bool Client::GetThreadExitFlag()
-{
-    return thread_exit;
-}
-
-Common::SelectModeReturnCode Client::SelectNoblockMode()
+SelectModeReturnCode Client::SelectNoblockMode()
 {
     FD_ZERO(&read_fds_);
     FD_ZERO(&write_fds_);
@@ -388,6 +294,5 @@ int Client::PollNoblockMode()
 
 int Client::EpollNoblockMode()
 {
-
     return 0;
 }

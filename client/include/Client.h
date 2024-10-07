@@ -5,6 +5,8 @@
 #include <fcntl.h>
 #include <sys/select.h>
 #include <errno.h>
+#include <netinet/in.h>  // 定义了 sockaddr_in 结构
+#include <arpa/inet.h>   // 定义了 inet_pton 和 inet_ntop 等函数
 #include "Common.h"
 #define BUFFER_SIZE 1024
 class Client:public Common
@@ -25,15 +27,8 @@ public:
     virtual int SetSocketBuff()override;
     virtual int SetSocketMessageSysTimeout(int send_timeout,int rec_timeout)override;
     virtual int SetSocketNonblock()override;
-    virtual int SetNonblockMode(NonblockMode mode)override;
-    virtual int RegisterNonblockModeCallback()override;
     virtual int GetProcessFdCountMax()override;
-    static void ClientThreadStart(Client* server);
     int SendFixData(uint8_t pdata);
-    void ClientRun(int port,int socket_type);
-    void ClientThread();
-    void WaitClientThread();
-    bool GetThreadExitFlag();
     SelectModeReturnCode SelectNoblockMode();
     int PollNoblockMode();
     int EpollNoblockMode();
@@ -51,6 +46,5 @@ private:
     SetNoblockFun  SetNoblockCall[3];
     fd_set read_fds_, write_fds_;
     int max_fd_;
-    SelectModeReturnCode select_status_;
 };
 #endif//CLIENT_H_

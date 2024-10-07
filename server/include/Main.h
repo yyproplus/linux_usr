@@ -28,6 +28,4 @@ public:
     std::mutex tcp_handle_mutex_;
 private:
 };
-void TcpEntrance();
-void TcpExit();
 #endif//MAIN_H_
