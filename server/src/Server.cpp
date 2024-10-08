@@ -38,7 +38,7 @@ int Server::Init(SocketType socket_type,int port)
     if(socket_type_==TCP_SOCK_STREAM_)
     ret=ConnectStart();
     else{
-        new_socket_=server_fd_;//udp连接不需要监听
+        bind_socket_=server_fd_;//udp连接不需要监听
     }
 #ifdef SOCKET_BLOCK
     if(ret<0)return -1;
@@ -81,7 +81,7 @@ int Server::ConnectStart()
 
 int Server::SocketDestory()
 {
-    close(new_socket_);
+    close(bind_socket_);
     if(socket_type_==UDP_SOCK_DGRAM_)return 0;
     close(server_fd_);
     return 0;
@@ -90,7 +90,7 @@ int Server::SocketDestory()
 int Server::Read(void *data, int MaxCount)
 {
     std::lock_guard<std::mutex> lock(read_lock_);
-    int valread = read(new_socket_, data, MaxCount);
+    int valread = read(bind_socket_, data, MaxCount);
     return valread;
 }
 
@@ -98,7 +98,7 @@ int Server::Write(const void *buf, size_t len, int flags)
 {
     std::unique_lock<std::mutex> lock(write_lock_,std::defer_lock);
     write_lock_.lock();
-    int ret=send(new_socket_, buf, len, flags);
+    int ret=send(bind_socket_, buf, len, flags);
     write_lock_.unlock();
     if(ret<0)return -1;
     return 0;
@@ -111,9 +111,9 @@ SelectModeReturnCode Server::SelectNoblockMode()
     FD_ZERO(&write_fds_);
 
     // 将sockfd添加到读和写的文件描述符集中
-    FD_SET(server_fd_, &read_fds_);
-    FD_SET(server_fd_, &write_fds_);
-    max_fd_ = server_fd_;
+    FD_SET(bind_socket_, &read_fds_);
+    FD_SET(bind_socket_, &write_fds_);
+    max_fd_ = bind_socket_;
 
     // 设置select超时时间
     struct timeval timeout;
@@ -129,8 +129,8 @@ SelectModeReturnCode Server::SelectNoblockMode()
         perror("select error\n");
         return SELECT_ERROR;
     }
-    int read_status=FD_ISSET(server_fd_,&read_fds_);
-    int write_status=FD_ISSET(server_fd_,&write_fds_);
+    int read_status=FD_ISSET(bind_socket_,&read_fds_);
+    int write_status=FD_ISSET(bind_socket_,&write_fds_);
     if(read_status&&write_status){
         return SELECT_RW;
     }else if(read_status){
@@ -166,10 +166,10 @@ int Server::SelectCheckSocketStatus()
     }
     if (FD_ISSET(server_fd_, &read_fds_)) {
         // 有新的连接，调用 accept
-        LOG_DEBUG("server_fd_=%d,len=%d,address_.sin_port=%d,activity=%d",server_fd_,addrlen,address_.sin_port,activity);
-        new_socket_ = accept(server_fd_, (struct sockaddr *)&address_, (socklen_t*)&addrlen);
+        //LOG_DEBUG("server_fd_=%d,len=%d,address_.sin_port=%d,activity=%d",server_fd_,addrlen,address_.sin_port,activity);
+        bind_socket_ = accept(server_fd_, (struct sockaddr *)&address_, (socklen_t*)&addrlen);
 
-        if (new_socket_ < 0) {
+        if (bind_socket_ < 0) {
             perror("accept 错误");
             // 打印错误码
             std::cerr << "错误代码: " <<strerror(errno) << std::endl; 

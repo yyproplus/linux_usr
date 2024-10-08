@@ -37,7 +37,7 @@ public:
     TcpConnectStatus tcp_connect_status_=TCP_WAITCONNECT;
 private:
     int server_fd_;
-    int new_socket_;
+    int bind_socket_;
     struct sockaddr_in address_;
     int port_;
     int socket_type_;
