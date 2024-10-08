@@ -15,8 +15,8 @@
 #include <sys/select.h>
 #include "Client.h"
 #include "Log.h"
-#define PORT 65432
-Client::Client(/* args */)
+Client::Client():client_sock_(0),client_addr_{},buffer_{},port_(0),socket_type_(0),read_fds_{},\
+write_fds_{},max_fd_(0)
 {
     printf("Client()\n");
 }

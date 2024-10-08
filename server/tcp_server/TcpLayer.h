@@ -13,18 +13,21 @@ public:
     ~TcpLayer();
     int TcpLayerInit(SocketType socket_type,int port);
     void TcpLayerRevThread();
+    void TcpLayerSendThread();
     void TcpLayerDataParseThread();
     void TcpLayerThreadResourceDestroy();
 private:
     Server server_;
     ThreadManager *tcp_rec_thread_;
+    ThreadManager *tcp_send_thread_;
     ThreadManager *tcp_dataParse_thread_;
     uint8_t buffer_[BUFFER_SIZE];
     Queue<DataTransport> server_queue_list_;
-    int len_=0;
-    uint8_t pdata[512]={0};
-    int rest_len_=0;
-    int frame_len_min_=5;
+    int len_;
+    uint8_t pdata[512];
+    int rest_len_;
+    int frame_len_min_;
+    SelectModeReturnCode select_status_;
 };
 #endif//UDP_H_
 

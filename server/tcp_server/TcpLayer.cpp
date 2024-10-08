@@ -3,7 +3,8 @@
 #include "TcpLayer.h"
 #include "Log.h"
 #include "ThreadManager.h"
-TcpLayer::TcpLayer():server_queue_list_(100)
+TcpLayer::TcpLayer():server_(),tcp_rec_thread_(nullptr),tcp_send_thread_(nullptr),tcp_dataParse_thread_(nullptr),\
+buffer_{},server_queue_list_(100),len_(0),pdata{},rest_len_(0),frame_len_min_(5),select_status_(SELECT_INIT)
 {
     printf("TcpLayer()\n");
 }
@@ -26,6 +27,9 @@ int TcpLayer::TcpLayerInit(SocketType socket_type,int port)
         return -1;
     }
     tcp_rec_thread_->ThreadCreate(std::bind(&TcpLayer::TcpLayerRevThread,this));
+    tcp_send_thread_=new ThreadManager();
+    if(tcp_send_thread_==nullptr)return -1;
+    tcp_send_thread_->ThreadCreate(std::bind(&TcpLayer::TcpLayerSendThread,this));
     tcp_dataParse_thread_=new ThreadManager();
     if(tcp_dataParse_thread_==nullptr){
         return -1;
@@ -37,6 +41,7 @@ int TcpLayer::TcpLayerInit(SocketType socket_type,int port)
 void TcpLayer::TcpLayerRevThread()
 {
     SelectModeReturnCode select_status_=server_.SelectNoblockMode();
+    //printf("server select_status_=%d\n",select_status_);
     if(select_status_==SELECT_READ_ONLY||select_status_==SELECT_RW){
         memset(pdata,0,sizeof(pdata));
         len_=server_.Read(pdata,sizeof(pdata));
@@ -80,7 +85,7 @@ void TcpLayer::TcpLayerRevThread()
                         }else{
                             LOG_ERROR("check error");
                         }
-                        //printf("i=%d,buffer_[i+2]=%d,rest_len=%d\n",i,buffer_[i+2],rest_len);
+                        //printf("i=%d,buffer_[i+2]=%d,rest_len_=%d\n",i,buffer_[i+2],rest_len_);
                         memcpy(buffer_,buffer_+i+buffer_[i+2],rest_len_-(buffer_[i+2]+i));
                         rest_len_-=(buffer_[i+2]+i);
                     }
@@ -92,6 +97,44 @@ void TcpLayer::TcpLayerRevThread()
                 rest_len_=0;
             }
         }
+    }
+}
+
+void TcpLayer::TcpLayerSendThread(){
+    static bool send_status=false;
+    uint8_t data=0x02;
+    int ret=0;
+    select_status_=server_.SelectNoblockMode();
+    sleep(2);
+    //LOG_INFO("select_status_=%d\n",select_status_);
+    if(select_status_==SELECT_WRITE_ONLY||select_status_==SELECT_RW){
+        //ret=!send_status?SendFixData(0x01):SendFixData(0x02);
+        ret=server_.SendFixData(data);
+        send_status=!send_status;
+        if (ret < 0) {
+            if (errno == EAGAIN || errno == EWOULDBLOCK) {
+                // 发送缓冲区满，稍后重试,稍加延时等待select状态可写
+                perror("SELECT_BUFF_FULL\n");
+                usleep(10);
+                //continue;
+            } else if(errno == EPIPE){
+                // 服务端关闭套接字
+                perror("SELECT_REMOTE_SOCKET_CLOSE_WITH_EPIPE\n");
+                return;//break;
+            } else if(errno == ECONNRESET){
+                // 连接被重置，关闭套接字
+                perror("server coredump or network error\n");
+                return;//break;
+            }else if (errno == ENOBUFS) {
+                // 系统缓冲区不足，可能需要重试或等待
+                perror("Sys Mem no enough\n");
+                //continue;
+            }
+            else {
+                printf("Write SELECT_ERROR,errno=%d\n",errno);
+                return;//break;
+            }
+         }
     }
 }
 

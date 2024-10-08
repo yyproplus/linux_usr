@@ -3,7 +3,8 @@
 #include "TcpLayer.h"
 #include "Log.h"
 #include "ThreadManager.h"
-TcpLayer::TcpLayer():client_queue_list_(100)
+TcpLayer::TcpLayer():client_(),tcp_rec_thread_(nullptr),tcp_dataParse_thread_(nullptr),tcp_send_thread_(nullptr),\
+buffer_{},client_queue_list_(100),len_(0),pdata{},rest_len_(0),frame_len_min_(5),select_status_(SELECT_INIT)
 {
     printf("TcpLayer()\n");
 }
@@ -133,8 +134,8 @@ void TcpLayer::TcpLayerDataParseThread()
 {
     const DataTransport *data=client_queue_list_.Read();
     if(data){
-        if(data->data_[3]==REQUEST_PUSH_STEAM_EVENT){
-           LOG_INFO("REQUEST_PUSH_STEAM_EVENT\n");
+        if(data->data_[3]==REQUEST_STOP_PUSH_STEAM_EVENT){
+           LOG_INFO("REQUEST_STOP_PUSH_STEAM_EVENT\n");
         }
         client_queue_list_.Pop();
     }

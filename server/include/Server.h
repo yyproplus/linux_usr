@@ -33,8 +33,7 @@ public:
     virtual int GetProcessFdCountMax()override;
     SelectModeReturnCode SelectNoblockMode();
     int SelectCheckSocketStatus();
-public:
-    TcpConnectStatus tcp_connect_status_=TCP_WAITCONNECT;
+    int SendFixData(uint8_t pdata);
 private:
     int server_fd_;
     int bind_socket_;
@@ -45,6 +44,7 @@ private:
     std::mutex write_lock_;
     fd_set read_fds_, write_fds_;
     int max_fd_;
+    TcpConnectStatus tcp_connect_status_;
     /* Server(const Server&) = delete; // 允许拷贝构造
     Server& operator=(const Server&) = delete; // 禁用赋值操作 */
 };

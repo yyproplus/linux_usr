@@ -14,6 +14,7 @@ typedef enum NonblockMode_{
     EPOLL_MODE=2
 }NonblockMode;
 typedef enum SelectModeReturnCode_{
+    SELECT_INIT=-2,
     SELECT_ERROR=-1,
     SELECT_SUCCESS=0,
     SELECT_BUFF_FULL=1,
@@ -34,6 +35,7 @@ typedef enum UdpEventMessageQueue_{
 
 }UdpEventMessageQueue;
 typedef enum TcpConnectStatus_{
+    TCP_INIT=0x00,
     TCP_WAITCONNECT=0x01,
     TCP_CONNECT_FAILED=0x02,
     TCP_CONNECT_SUCCESS=0x03,

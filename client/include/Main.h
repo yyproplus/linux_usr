@@ -8,7 +8,7 @@
 class Main
 {
 public:
-    Main()
+    Main():tcp_client_()
     {
         printf("Main()\n");
     }

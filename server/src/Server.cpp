@@ -16,7 +16,8 @@
 #include "UdpEvent.h"
 #define PORT 65432
 
-Server::Server():socket_type_(0)
+Server::Server():server_fd_(0),bind_socket_(0),address_{},port_(0),socket_type_(0),read_fds_{},write_fds_{},\
+max_fd_(0),tcp_connect_status_(TCP_INIT)
 {
     printf("Server()\n");
 }
@@ -141,6 +142,18 @@ SelectModeReturnCode Server::SelectNoblockMode()
         return SELECT_NORW;
     }
     return SELECT_SUCCESS;
+}
+
+int Server::SendFixData(uint8_t pdata)
+{
+    uint8_t data[]={0x55,0xAA,0x05,0x01,0x00};
+    data[3]=pdata;
+    int len=sizeof(data);
+    uint8_t checkValue=0x00;
+    for(int i=0;i<len-1;i++)
+    checkValue^=data[i];
+    data[len-1]=checkValue;
+    return Write(data,len,0);
 }
 
 int Server::SelectCheckSocketStatus()

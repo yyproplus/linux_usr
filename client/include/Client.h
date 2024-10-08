@@ -34,7 +34,6 @@ public:
     int EpollNoblockMode();
 private:
     int client_sock_;
-    std::thread client_thread_;
     struct sockaddr_in client_addr_;
     uint8_t buffer_[BUFFER_SIZE];
     bool thread_exit=false;

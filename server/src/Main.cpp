@@ -73,5 +73,9 @@ int main() {
     while(1){
         sleep(1);
     }
+    if(main_obj){
+        delete main_obj;
+        main_obj=nullptr;
+    }
     return 0;
 }
