@@ -74,7 +74,7 @@ int Client::BindSocket()
     client_addr_.sin_port = htons(port_);
     
     // 将IP地址从文本转换为二进制形式
-    if (inet_pton(AF_INET, "192.168.31.127", &client_addr_.sin_addr) <= 0) {
+    if (inet_pton(AF_INET, "192.168.171.128", &client_addr_.sin_addr) <= 0) {
         printf("\nInvalid address/ Address not supported \n");
         return -1;
     }

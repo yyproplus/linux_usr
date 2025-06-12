@@ -1,8 +1,4 @@
 #include "Log.h"
-extern "C"{
-    #include "libavutil/error.h"
-    #include "libavcodec/avcodec.h"
-}
 
 LogLevel current_log_level = LOG_LEVEL_DEBUG;
 
